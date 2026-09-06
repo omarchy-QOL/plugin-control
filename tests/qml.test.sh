@@ -24,27 +24,26 @@ rg -q 'function toggle\(\)' "$ROOT/PluginControl.qml"
 rg -q 'TextInput \{' "$ROOT/PluginControl.qml"
 rg -q 'Qt.Key_P' "$ROOT/PluginControl.qml"
 rg -Fq 'event.key === Qt.Key_Escape' "$ROOT/PluginControl.qml"
-rg -Fq '{ keyLabel: "[Ctrl+i]", label: "Plugin info",' \
-  "$ROOT/PaletteFooter.qml"
-rg -Fq '{ keyLabel: "[Ctrl+u]", label: "Check for plugin updates",' \
-  "$ROOT/PaletteFooter.qml"
-rg -Fq '{ keyLabel: "[Ctrl+w]",' \
-  "$ROOT/PaletteFooter.qml"
-rg -Fq '{ keyLabel: "[Ctrl+g]", label: "GitHub plugin source",' \
-  "$ROOT/PaletteFooter.qml"
-rg -Fq '{ keyLabel: "[Ctrl+r]", label: "Refresh cache",' \
-  "$ROOT/PaletteFooter.qml"
-rg -Fq '{ keyLabel: "[Ctrl+s]", label: "Settings",' \
-  "$ROOT/PaletteFooter.qml"
-ctrl_u_line="$(rg -nF '{ keyLabel: "[Ctrl+u]"' \
+for footer_label in \
+    "Plugin info" \
+    "Check plugin updates" \
+    "GitHub plugin source" \
+    "Refresh cache" \
+    "Settings"; do
+  rg -Fq "label: \"$footer_label\"" "$ROOT/PaletteFooter.qml"
+done
+for footer_key in u i w g r s; do
+  rg -Fq "keyLabel: \"[Ctrl+$footer_key]\"" "$ROOT/PaletteFooter.qml"
+done
+ctrl_u_line="$(rg -nF 'keyLabel: "[Ctrl+u]"' \
   "$ROOT/PaletteFooter.qml" | cut -d: -f1)"
-ctrl_i_line="$(rg -nF '{ keyLabel: "[Ctrl+i]"' \
+ctrl_i_line="$(rg -nF 'keyLabel: "[Ctrl+i]"' \
   "$ROOT/PaletteFooter.qml" | cut -d: -f1)"
 (( ctrl_u_line < ctrl_i_line ))
 rg -Fq 'signal shortcutActivated(int shortcutKey)' \
   "$ROOT/PaletteFooter.qml"
 for shortcut_key in U I W G R S; do
-  rg -Fq "shortcutKey: Qt.Key_$shortcut_key }" "$ROOT/PaletteFooter.qml"
+  rg -Fq "shortcutKey: Qt.Key_$shortcut_key" "$ROOT/PaletteFooter.qml"
 done
 rg -Fq 'acceptedButtons: Qt.LeftButton' "$ROOT/PaletteFooter.qml"
 rg -Fq 'hoverEnabled: true' "$ROOT/PaletteFooter.qml"

@@ -15,6 +15,7 @@ fi
   "$ROOT/Service.qml" "$ROOT/PluginControl.qml" "$ROOT/ActionDialog.qml" \
   "$ROOT/PluginControlBar.qml" "$ROOT/SelfRemovalDialog.qml" \
   "$ROOT/PaletteResultRow.qml" "$ROOT/PaletteFooter.qml" \
+  "$ROOT/PreviewCard.qml" \
   "$ROOT/lib/shortcuts/HyprlandBinding.qml"
 printf 'ok - QML lint\n'
 
@@ -389,6 +390,8 @@ grep -Fq 'PLUGIN_CONTROL_LOAD_OK bar-widget' "$runtime_root/quickshell.log"
 grep -Fq 'PLUGIN_CONTROL_WATCH_OK fresh install save' \
   "$runtime_root/quickshell.log"
 grep -Fq 'PLUGIN_CONTROL_INTERACTION_OK palette interactions' \
+  "$runtime_root/quickshell.log"
+grep -Fq 'PLUGIN_CONTROL_SIDE_PREVIEW_OK delay selection and close' \
   "$runtime_root/quickshell.log"
 test -f "$runtime_root/config/omarchy/ilyazar.plugin-control/channels.yaml"
 if grep -Fq 'PLUGIN_CONTROL_LOAD_ERROR' "$runtime_root/quickshell.log"; then

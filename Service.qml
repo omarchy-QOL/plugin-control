@@ -280,22 +280,34 @@ Item {
     return true
   }
 
+  function previewKey(record) {
+    return JSON.stringify([record.id, record.previewThumbnailUrl,
+      record.previewImageUrl, record.versionUpdatedAt || record.version || ""])
+  }
+
+  function discardQueuedPreview() {
+    previewQueuedRecord = null
+  }
+
   function requestPreview(record) {
     if (!helperPath || !record) return false
     var id = String(record.id || "")
     var cardUrl = String(record.previewThumbnailUrl || "")
     var detailUrl = String(record.previewImageUrl || "")
+    var key = previewKey(record)
+    previewQueuedRecord = null
     if (!id || !cardUrl || !detailUrl) return false
-    if (previewState && previewState.id === id
+    if (previewState && previewState.key === key
         && previewState.cardUrl && previewState.detailUrl) return true
     if (previewProcess.running) {
       previewQueuedRecord = JSON.parse(JSON.stringify(record))
       return true
     }
     previewLoading = true
-    previewState = ({ id: id })
+    previewState = ({ id: id, key: key })
     previewProcess.output = ""
     previewProcess.requestedId = id
+    previewProcess.requestedKey = key
     previewProcess.command = [helperPath, "preview", id, cardUrl, detailUrl,
       String(record.versionUpdatedAt || record.version || "")]
     previewProcess.running = true
@@ -307,9 +319,11 @@ Item {
     var parsed = parseJson(raw, null)
     if (exitCode !== 0 || !parsed || parsed.ok !== true
         || !parsed.id || !parsed.cardUrl || !parsed.detailUrl) {
-      previewState = ({ id: previewProcess.requestedId, failed: true })
+      previewState = ({ id: previewProcess.requestedId,
+        key: previewProcess.requestedKey, failed: true })
       return false
     }
+    parsed.key = previewProcess.requestedKey
     previewState = parsed
     return true
   }
@@ -537,6 +551,7 @@ Item {
     id: previewProcess
     property string output: ""
     property string requestedId: ""
+    property string requestedKey: ""
     stdout: StdioCollector {
       waitForEnd: true
       onStreamFinished: previewProcess.output = text

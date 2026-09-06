@@ -4,6 +4,8 @@ Notable changes are recorded here for each published release.
 
 ## Unreleased
 
+- Show a delayed marketplace preview beside the picker, adapted from Metaplug.
+
 - Keep marketplace presentation separate from local plugin lifecycle state.
 - Show installed manifest versions independently and explain unverified
   marketplace versions without using GitHub release tags as replacements.

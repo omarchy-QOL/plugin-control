@@ -22,6 +22,41 @@ ShellRoot {
   property bool entryChecksComplete: false
   property bool watcherSaveStarted: false
   property int watcherWaitAttempts: 0
+  property var previewOverlay: null
+  property int sidePreviewStep: 0
+
+  Timer {
+    id: sidePreviewChecks
+    interval: 250
+    onTriggered: {
+      var overlay = root.previewOverlay
+      if (root.sidePreviewStep === 0) {
+        if (overlay.sidePreviewRecord !== null)
+          console.error("PLUGIN_CONTROL_LOAD_ERROR preview appeared before delay")
+        overlay.filteredRecords = [{id:"preview.second",name:"Second"}]
+        interval = 1100
+        root.sidePreviewStep++
+        restart()
+      } else {
+        if (overlay.roomForSidePreview
+            && (!overlay.sidePreviewRecord
+              || overlay.sidePreviewRecord.id !== "preview.second"))
+          console.error("PLUGIN_CONTROL_LOAD_ERROR delayed preview selection "
+            + JSON.stringify({opened:overlay.opened,
+              candidate:overlay.sidePreviewCandidate,
+              shown:overlay.sidePreviewRecord}))
+        overlay.openDialogFor({id:"preview.second",name:"Second"}, true)
+        if (overlay.sidePreviewCandidate !== null
+            || overlay.sidePreviewRecord !== null)
+          console.error("PLUGIN_CONTROL_LOAD_ERROR preview behind dialog")
+        overlay.close()
+        if (overlay.sidePreviewCandidate !== null)
+          console.error("PLUGIN_CONTROL_LOAD_ERROR preview after close")
+        console.log("PLUGIN_CONTROL_SIDE_PREVIEW_OK delay selection and close")
+        Qt.callLater(Qt.quit)
+      }
+    }
+  }
 
   function manifestData() {
     return {
@@ -1053,7 +1088,11 @@ ShellRoot {
           console.log("PLUGIN_CONTROL_WATCH_OK fresh install save")
         }
         stop()
-        Qt.callLater(Qt.quit)
+        root.previewOverlay = root.loadEntry("PluginControl.qml", "preview-overlay")
+        root.previewOverlay.opened = true
+        root.previewOverlay.surfaceVisible = true
+        root.previewOverlay.filteredRecords = [{id:"preview.first",name:"First"}]
+        sidePreviewChecks.start()
       } else if (root.watcherWaitAttempts >= 100) {
         console.error("PLUGIN_CONTROL_LOAD_ERROR watched config save")
         stop()

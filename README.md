@@ -113,6 +113,14 @@ fallback.
 
 ## Plugin information
 
+Rest on a plugin for one second to open a small preview to the right of the
+picker. Keyboard selection and mouse hover use the same delay. The card shows
+the marketplace image, description, tags, metrics, and verification status.
+It hides while using dialogs or settings, and on screens without enough room.
+Missing images or metrics do not prevent the text preview from appearing.
+Click anywhere on the card, including its image, for the same details as
+`Ctrl+i`.
+
 `Ctrl+i` opens read-only details: the full description, source, repository,
 tags, marketplace activity, and verification state. Verification reflects the
 marketplace checks for the listed commit; it is not a security audit.

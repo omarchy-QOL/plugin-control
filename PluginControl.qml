@@ -35,6 +35,19 @@ Item {
   property bool previewOpen: false
   property string previewUrl: ""
   property string previewName: ""
+  property var sidePreviewRecord: null
+  readonly property int sidePreviewWidth: Style.space(320)
+  readonly property bool roomForSidePreview: card.x + card.width
+    + Style.spacing.md + sidePreviewWidth + Style.gapsOut <= panel.width
+  readonly property var sidePreviewCandidate: opened && roomForSidePreview
+    && !settingsMenuOpen && !modalDialogOpened ? shortcutRecord : null
+
+  onSidePreviewCandidateChanged: {
+    sidePreviewRecord = null
+    sidePreviewTimer.stop()
+    if (service && !modalDialogOpened) service.discardQueuedPreview()
+    if (sidePreviewCandidate) sidePreviewTimer.restart()
+  }
   property int previewWidth: 0
   property int previewHeight: 0
   property var savedSettings: ({})
@@ -750,6 +763,16 @@ Item {
     onTriggered: root.surfaceVisible = false
   }
 
+  Timer {
+    id: sidePreviewTimer
+    interval: 1000
+    onTriggered: {
+      root.sidePreviewRecord = root.sidePreviewCandidate
+      if (root.sidePreviewRecord && root.service)
+        root.service.requestPreview(root.sidePreviewRecord)
+    }
+  }
+
   PanelWindow {
     id: panel
     visible: root.surfaceVisible
@@ -832,17 +855,18 @@ Item {
         marketplaceYellow: root.shortcutColor
         marketplaceRed: root.urgent
         previewLoading: root.service ? root.service.previewLoading : false
+        readonly property bool matchingPreview: !!root.service
+          && !!root.service.previewState && !!root.selectedRecord
+          && root.service.previewState.key
+            === root.service.previewKey(root.selectedRecord)
         previewFailed: root.service && root.service.previewState
-          && root.selectedRecord
-          && root.service.previewState.id === root.selectedRecord.id
+          && matchingPreview
           && root.service.previewState.failed === true
         previewCardSource: root.service && root.service.previewState
-          && root.selectedRecord
-          && root.service.previewState.id === root.selectedRecord.id
+          && matchingPreview
           ? String(root.service.previewState.cardUrl || "") : ""
         previewDetailSource: root.service && root.service.previewState
-          && root.selectedRecord
-          && root.service.previewState.id === root.selectedRecord.id
+          && matchingPreview
           ? String(root.service.previewState.detailUrl || "") : ""
         onCanceled: {
           closeDialog()
@@ -1168,6 +1192,36 @@ Item {
           }
         }
       }
+    }
+
+    PreviewCard {
+      id: sidePreview
+      objectName: "sidePreview"
+      x: card.x + card.width + Style.spacing.md
+      y: card.y
+      width: root.sidePreviewWidth
+      height: Math.min(implicitHeight,
+        Math.max(0, panel.height - y - Style.gapsOut))
+      visible: root.sidePreviewCandidate !== null
+        && root.sidePreviewRecord !== null
+      plugin: root.sidePreviewRecord
+      readonly property bool matchingImage: !!plugin && !!root.service
+        && root.service.previewState
+        && root.service.previewState.key === root.service.previewKey(plugin)
+      imageSource: matchingImage
+        ? String(root.service.previewState.cardUrl || "") : ""
+      imageLoading: !!plugin && !!plugin.previewThumbnailUrl
+        && (!matchingImage || root.service.previewLoading)
+      imageFailed: matchingImage && root.service.previewState.failed === true
+      background: root.background
+      foreground: root.foreground
+      borderColor: root.borderColor
+      accent: root.accent
+      success: root.successColor
+      urgent: root.urgent
+      marketplaceYellow: root.shortcutColor
+      marketplaceOrange: root.marketplaceOrange
+      onInformationRequested: root.openDialogFor(root.sidePreviewRecord, true)
     }
 
     FocusScope {

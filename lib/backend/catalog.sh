@@ -116,7 +116,7 @@ download_catalog() {
   local -a request=(
     curl --silent --show-error --location
     --proto '=https' --proto-redir '=https'
-    --connect-timeout 5 --max-time 20 --max-filesize 5242880
+    --connect-timeout 5 --max-time 20 --max-filesize 16777216
     --output "$body" --dump-header "$headers"
     --write-out '%{http_code}'
   )

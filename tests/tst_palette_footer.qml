@@ -18,7 +18,7 @@ TestCase {
 
     PaletteFooter {
       width: 720
-      height: 42
+      height: 48
     }
   }
 

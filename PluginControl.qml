@@ -88,7 +88,7 @@ Item {
     Math.max(Style.space(320), panel.width - Style.gapsOut * 2))
   readonly property int rowHeight: Style.space(60)
   readonly property int headerHeight: Style.space(52)
-  readonly property int footerHeight: Style.space(42)
+  readonly property int footerHeight: Style.space(48)
   readonly property bool paletteChromeVisible: !settingsMenuOpen
   readonly property int activeHeaderHeight: paletteChromeVisible
     ? headerHeight : 0
@@ -1051,12 +1051,21 @@ Item {
           width: parent.width
           height: root.statusHeight
 
+          Rectangle {
+            anchors.top: parent.top
+            width: parent.width
+            height: 1
+            color: Util.alpha(root.foreground, 0.16)
+          }
+
           Item {
             id: leftStatusArea
             anchors.left: parent.left
             anchors.right: statusGap.left
             anchors.top: parent.top
             anchors.bottom: parent.bottom
+            // Include the column gap before the footer divider.
+            anchors.bottomMargin: -Style.spacing.sm
 
             Text {
               id: leftStatusLabel
@@ -1126,6 +1135,7 @@ Item {
             anchors.right: parent.right
             anchors.top: parent.top
             anchors.bottom: parent.bottom
+            anchors.bottomMargin: -Style.spacing.sm
 
             Text {
               id: rightStatusLabel

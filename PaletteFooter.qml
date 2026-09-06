@@ -21,7 +21,7 @@ Item {
     Row {
         id: footerRow
         anchors.fill: parent
-        anchors.topMargin: Style.space(6)
+        anchors.topMargin: Style.space(12)
 
         Repeater {
             model: [

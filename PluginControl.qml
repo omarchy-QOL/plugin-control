@@ -981,6 +981,8 @@ Item {
               selectedBackground: root.selectedBackground
               selectedText: root.selectedText
               urgent: root.urgent
+              installedVersionColor: root.successColor
+              versionWarningColor: root.shortcutColor
               onHovered: root.select(index)
               onActivated: {
                 root.select(index)

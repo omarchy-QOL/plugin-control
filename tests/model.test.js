@@ -471,13 +471,53 @@ test("palette view model keeps settings and records declarative", () => {
   assert.equal(Palette.removableRecord(records, "missing"), null);
 });
 
-test("palette displays the version without the repository release tag", () => {
+test("palette keeps marketplace and installed versions separate", () => {
   const value = Palette.displayRecord({
     version: "1.40.11",
+    installedVersion: "1.39.0",
     releaseTag: "v1.40.11"
   });
   assert.equal(value.version, "1.40.11");
+  assert.equal(value.installedVersion, "1.39.0");
   assert.equal(Object.hasOwn(value, "releaseTag"), false);
+  const normalized = Catalog.prepareRecords([{
+    id: "example.version",
+    releaseTag: "v1.40.11"
+  }])[0];
+  assert.equal(Object.hasOwn(normalized, "releaseTag"), false);
+});
+
+test("unverified marketplace versions explain their exact coverage", () => {
+  const changed = Palette.displayRecord({
+    marketplaceListed: true,
+    verificationStatus: "unverified",
+    verificationCoverage: "update-unverified"
+  });
+  assert.equal(changed.versionWarning, true);
+  assert.match(changed.versionWarningTooltip, /differs from the verified/);
+  assert.match(changed.versionWarningTooltip, /latest upstream commit/);
+  assert.doesNotMatch(changed.versionWarningTooltip, /GitHub release/);
+  assert.doesNotMatch(changed.versionWarningTooltip, /control installation/);
+
+  const unverified = Palette.displayRecord({
+    marketplaceListed: true,
+    verificationStatus: "unverified",
+    verificationCoverage: "unverified"
+  });
+  assert.equal(unverified.versionWarning, true);
+  assert.match(unverified.versionWarningTooltip, /not covered/);
+  assert.match(unverified.versionWarningTooltip, /latest upstream commit/);
+
+  const verified = Palette.displayRecord({
+    marketplaceListed: true,
+    verificationStatus: "verified",
+    verificationCoverage: "snapshot-verified"
+  });
+  assert.equal(verified.versionWarning, false);
+  assert.equal(verified.versionWarningTooltip, "");
+
+  const local = Palette.displayRecord({ verificationStatus: "unverified" });
+  assert.equal(local.versionWarning, false);
 });
 
 test("palette warnings stay concise without changing their source value", () => {

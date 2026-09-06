@@ -2,6 +2,12 @@
 
 Notable changes are recorded here for each published release.
 
+## Unreleased
+
+- Keep marketplace presentation separate from local plugin lifecycle state.
+- Show installed manifest versions independently and explain unverified
+  marketplace versions without using GitHub release tags as replacements.
+
 ## [0.2.1] - 2026-08-22
 
 - Add safe update checks and one action menu for adding, updating, enabling,

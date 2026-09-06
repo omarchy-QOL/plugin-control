@@ -118,8 +118,12 @@ function normalizeRecord(value) {
   record.description = cleanText(record.description)
   record.author = cleanText(record.author)
   record.version = cleanText(record.version)
-  record.releaseTag = cleanText(record.releaseTag)
+  record.catalogVersion = cleanText(record.catalogVersion)
+  record.installedVersion = cleanText(record.installedVersion)
   record.repository = cleanText(record.repository)
+  record.catalogRepository = cleanText(record.catalogRepository)
+  record.installedRepository = cleanText(record.installedRepository)
+  delete record.releaseTag
   record.category = cleanText(record.category)
   record.kind = cleanText(record.kind)
   record.kinds = Array.isArray(record.kinds)
@@ -133,6 +137,9 @@ function normalizeRecord(value) {
   record.tags = Array.isArray(record.tags) ? record.tags.map(cleanText) : []
   record.stars = count(record.stars)
   record.verificationStatus = cleanText(record.verificationStatus)
+  record.verificationSnapshotStatus = cleanText(
+    record.verificationSnapshotStatus)
+  record.verificationCoverage = cleanText(record.verificationCoverage)
   record.addedAt = cleanText(record.addedAt)
   record.listedAt = cleanText(record.listedAt)
   record.versionUpdatedAt = cleanText(record.versionUpdatedAt)

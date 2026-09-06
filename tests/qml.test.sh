@@ -91,7 +91,14 @@ rg -Fq 'onTapped: root.spaceActivatesSelection = false' \
 rg -q 'commandCompletion' "$ROOT/PluginControl.qml"
 rg -q 'function clearCompletedCommandPrefix()' "$ROOT/PluginControl.qml"
 rg -Fq 'repository: String(value.repository' "$ROOT/PaletteViewModel.js"
+rg -Fq 'installedVersion: String(value.installedVersion' \
+  "$ROOT/PaletteViewModel.js"
 rg -Fq 'font.pixelSize: Style.font.caption' "$ROOT/PaletteResultRow.qml"
+rg -Fq 'text: "(installed " + root.installedVersion + ")"' \
+  "$ROOT/PaletteResultRow.qml"
+rg -Fq 'versionWarningColor: root.shortcutColor' "$ROOT/PluginControl.qml"
+rg -Fq 'installedVersionColor: root.successColor' "$ROOT/PluginControl.qml"
+rg -Fq 'text: "\uf071"' "$ROOT/PaletteResultRow.qml"
 if rg -Fq 'text: root.pluginId' "$ROOT/PaletteResultRow.qml"; then
   printf 'not ok - result rows still display the redundant plugin ID\n' >&2
   exit 1

@@ -240,8 +240,7 @@ def normalized_record($channel_name; $channel_source; $channel_rank):
       ),
       listingValidatedCommit: (.listingValidatedCommit // ""),
       upstreamObservedCommit: verification_observed_commit,
-      upstreamCheckStatus: (.upstreamCheckStatus // "unknown"),
-      releaseTag: (.repositoryRelease.tag // "")
+      upstreamCheckStatus: (.upstreamCheckStatus // "unknown")
     }
   | with_entries(select(.value != null));
 

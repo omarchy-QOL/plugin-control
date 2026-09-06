@@ -13,6 +13,7 @@ QtObject {
     property int subtitle: 13
     property int title: 14
     property int heading: 16
+    property int icon: 16
     property int iconLarge: 18
   }
 

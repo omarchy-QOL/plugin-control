@@ -48,8 +48,21 @@ function displayWarning(value) {
   return "Warning"
 }
 
+function versionWarningTooltip(record) {
+  var value = record || {}
+  if (value.marketplaceListed !== true || value.builtIn === true
+      || String(value.verificationStatus || "") === "verified") return ""
+  if (String(value.verificationCoverage || "") === "update-unverified") {
+    return "Manifest version reported by Omarchy Plugins. The latest upstream "
+      + "commit differs from the verified snapshot."
+  }
+  return "Manifest version reported by Omarchy Plugins. The latest upstream "
+    + "commit is not covered by marketplace verification."
+}
+
 function displayRecord(record) {
   var value = record || {}
+  var versionTooltip = versionWarningTooltip(value)
   return {
     pluginName: String(value.name || value.id || ""),
     pluginId: String(value.id || ""),
@@ -61,6 +74,9 @@ function displayRecord(record) {
     warning: String(value.warning || ""),
     warningLabel: displayWarning(value.warning),
     version: String(value.version || ""),
+    installedVersion: String(value.installedVersion || ""),
+    versionWarning: versionTooltip !== "",
+    versionWarningTooltip: versionTooltip,
     repository: String(value.repository || ""),
     separatorBefore: value.separatorBefore === true,
     dangerous: value.dangerous === true
@@ -140,6 +156,7 @@ if (typeof module !== "undefined") {
     actionOptions: actionOptions,
     displayRecord: displayRecord,
     removableRecord: removableRecord,
-    settingsResult: settingsResult
+    settingsResult: settingsResult,
+    versionWarningTooltip: versionWarningTooltip
   }
 }

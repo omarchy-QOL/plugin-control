@@ -159,7 +159,8 @@ cp "$TEST_DIR/fixtures/catalog-action.json" "$cache_dir/marketplace.json"
 
 snapshot="$(rebuild_snapshot)"
 snapshot_id="$(jq -r '.snapshotId' <<<"$snapshot")"
-jq -e '.ok == true and (.records | length) >= 1' <<<"$snapshot" >/dev/null
+jq -e '.ok == true and .snapshotSchemaVersion == 1
+  and (.records | length) >= 1' <<<"$snapshot" >/dev/null
 printf 'ok - cache-backed snapshot\n'
 
 cached_list_calls="$(grep -c '^plugin list --json$' "$MOCK_LOG" || true)"
@@ -168,6 +169,16 @@ cached_again="$(helper cached "$ROOT")"
 [[ $(grep -c '^plugin list --json$' "$MOCK_LOG" || true) \
   == "$cached_list_calls" ]]
 printf 'ok - warm cache read skips native and Git refresh work\n'
+
+snapshot_state="$XDG_STATE_HOME/omarchy/ilyazar.plugin-control/snapshot.json"
+jq 'del(.snapshotSchemaVersion)' "$snapshot_state" >"$snapshot_state.tmp"
+mv "$snapshot_state.tmp" "$snapshot_state"
+legacy_list_calls="$(grep -c '^plugin list --json$' "$MOCK_LOG" || true)"
+rebuilt_schema="$(helper cached "$ROOT")"
+jq -e '.snapshotSchemaVersion == 1' <<<"$rebuilt_schema" >/dev/null
+(( $(grep -c '^plugin list --json$' "$MOCK_LOG" || true)
+  > legacy_list_calls ))
+printf 'ok - stale snapshot schemas rebuild from current sources\n'
 
 export MOCK_LIST_SLEEP=0.3
 rm -f -- "$XDG_STATE_HOME/omarchy/ilyazar.plugin-control/snapshot.json"
@@ -408,14 +419,23 @@ printf '[{"id":"io.example.weather","name":"Local Weather",
   >"$MOCK_RUNTIME"
 snapshot="$(rebuild_snapshot)"
 jq -e '.records[] | select(.id == "io.example.weather")
-  | .source == "local" and .installed == true and .installable == false
+  | .source == "marketplace"
+    and .name == "Weather"
+    and .description == "A weather widget"
+    and .author == "Example"
+    and .version == "1.2.3"
+    and .catalogVersion == "1.2.3"
+    and .installedVersion == "2.0.0"
+    and .installed == true and .installable == false
     and .marketplaceListed == true
-    and .repository == "https://github.com/local/weather"' \
+    and .repository == "https://github.com/example/weather"
+    and .catalogRepository == "https://github.com/example/weather"
+    and .installedRepository == "https://github.com/local/weather"' \
   <<<"$snapshot" >/dev/null
 jq -e '.diagnostics[] | select(.type == "repository-collision"
   and .id == "io.example.weather")' <<<"$snapshot" >/dev/null
 rm -rf -- "$weather_local"
-printf 'ok - installed records override upstream action metadata\n'
+printf 'ok - marketplace presentation survives installed action metadata\n'
 
 local_plugin="$plugins_root/local.test"
 mkdir -p "$local_plugin"
@@ -443,7 +463,9 @@ snapshot="$(rebuild_snapshot)"
 snapshot_id="$(jq -r '.snapshotId' <<<"$snapshot")"
 jq -e '.records[] | select(.id == "local.test")
   | .installed == true and .removable == true and .dirty == false
-    and .canDisable == true and .enabled == true' \
+    and .canDisable == true and .enabled == true
+    and .version == "" and .installedVersion == "1.0.0"
+    and .catalogVersion == null' \
   <<<"$snapshot" >/dev/null
 
 restart_calls_before="$(grep -c '^restart shell$' "$MOCK_LOG" || true)"

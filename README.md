@@ -41,6 +41,16 @@ that plugin's available actions. Search and direct commands use the same menu:
 - available user plugins show Add
 - inactive full bars show Enable; active full bars are left alone
 
+Marketplace-listed plugins keep the marketplace name, description, GitHub
+link, and manifest version even after they are added. Added plugins also show
+their local manifest version as a green `(installed X)` label. Local-only
+plugins show that installed label without inventing a marketplace version.
+
+An unverified marketplace version is yellow and carries a warning icon. Hover
+over the icon or version for the exact verification-coverage explanation.
+GitHub releases and version-like tags may differ from the manifest and do not
+replace the marketplace version.
+
 Plugin Control runs every change through native `omarchy plugin` commands.
 
 To narrow the list by action, use:

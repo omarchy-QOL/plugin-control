@@ -31,9 +31,14 @@ TestCase {
       sourceLabel: "Marketplace listed"
       warningLabel: ""
       version: "1.0.0"
+      installedVersion: ""
+      versionWarning: false
+      versionWarningTooltip: ""
       repository: testCase.repositoryUrl
       separatorBefore: false
       dangerous: false
+      installedVersionColor: "#44cc66"
+      versionWarningColor: "#e6c34d"
     }
   }
 
@@ -118,7 +123,13 @@ TestCase {
     verify(!visibleText("io.example.weather"))
     verify(!visibleText("Alice"))
     verify(repository.font.pixelSize < name.font.pixelSize)
-    compare(state.text, "Available 1.0.0")
+    var version = namedItem("versionText")
+    var versionIcon = namedItem("versionWarningIcon")
+    verify(version)
+    verify(versionIcon)
+    compare(state.text, "Available")
+    compare(version.text, "1.0.0")
+    verify(!versionIcon.visible)
     compare(source.text, "Marketplace listed")
     compare(warning.text, "")
     compare(state.font.pixelSize, name.font.pixelSize)
@@ -131,14 +142,16 @@ TestCase {
     var namePoint = name.mapToItem(row, 0, 0)
     var repositoryPoint = repository.mapToItem(row, 0, 0)
     var descriptionPoint = description.mapToItem(row, 0, 0)
+    var versionPoint = version.mapToItem(row, 0, 0)
+    var sourcePoint = source.mapToItem(row, 0, 0)
     verify(repositoryPoint.x > namePoint.x)
     verify(Math.abs(repositoryPoint.y + repository.height / 2
       - (namePoint.y + name.height / 2)) < 1)
     verify(descriptionPoint.y > namePoint.y)
     verify(source.y > state.y)
     verify(warning.y > source.y)
-    compare(Math.round(state.x + state.width),
-      Math.round(source.x + source.width))
+    compare(Math.round(versionPoint.x + version.width),
+      Math.round(sourcePoint.x + source.width))
     compare(Math.round(source.x + source.width),
       Math.round(warning.x + warning.width))
     verify(!source.truncated)
@@ -207,9 +220,76 @@ TestCase {
     waitForRendering(row)
 
     var state = namedItem("stateText")
-    compare(state.text, "Browse only 0.0.0")
+    var version = namedItem("versionText")
+    compare(state.text, "Browse only")
+    compare(version.text, "0.0.0")
     verify(!state.truncated)
     verify(state.implicitWidth <= state.width)
+    verify(!version.truncated)
+  }
+
+  function test_installedVersionFollowsTheRepositoryInThemeGreen() {
+    row.installedVersion = "0.9.0"
+    waitForRendering(row)
+
+    var repository = namedItem("repositoryText")
+    var installed = namedItem("installedVersionText")
+    verify(installed.visible)
+    compare(installed.text, "(installed 0.9.0)")
+    compare(installed.color.toString(), row.installedVersionColor.toString())
+    verify(installed.x > repository.x)
+
+    row.selected = true
+    waitForRendering(row)
+    compare(installed.color.toString(), row.installedVersionColor.toString())
+  }
+
+  function test_localOnlyRowHasNoRightSideVersion() {
+    row.sourceLabel = "Local checkout"
+    row.version = ""
+    row.installedVersion = "0.9.0"
+    waitForRendering(row)
+
+    var cluster = namedItem("versionCluster")
+    var state = namedItem("stateText")
+    var source = namedItem("sourceText")
+    var installed = namedItem("installedVersionText")
+    verify(!cluster.visible)
+    verify(installed.visible)
+    compare(installed.text, "(installed 0.9.0)")
+    compare(Math.round(state.x + state.width),
+      Math.round(source.x + source.width))
+  }
+
+  function test_unverifiedVersionUsesThemeWarningAndTooltip() {
+    row.versionWarning = true
+    row.versionWarningTooltip = "Manifest version warning"
+    waitForRendering(row)
+
+    var cluster = namedItem("versionCluster")
+    var icon = namedItem("versionWarningIcon")
+    var version = namedItem("versionText")
+    var hover = namedItem("versionWarningHover")
+    var tooltip = namedItem("versionTooltip")
+    verify(cluster)
+    verify(icon.visible)
+    compare(version.color.toString(), row.versionWarningColor.toString())
+    compare(icon.color.toString(), row.versionWarningColor.toString())
+    compare(tooltip.text, row.versionWarningTooltip)
+    compare(tooltip.width, 320)
+    verify(tooltip.y < 0)
+    compare(tooltip.contentItem.wrapMode, Text.Wrap)
+    mouseMove(cluster, Math.floor(cluster.width / 2),
+      Math.floor(cluster.height / 2))
+    tryCompare(hover, "containsMouse", true)
+    tryCompare(tooltip, "visible", true)
+    mouseClick(cluster, Math.floor(cluster.width / 2),
+      Math.floor(cluster.height / 2), Qt.LeftButton)
+    compare(activatedSpy.count, 1)
+
+    row.selected = true
+    waitForRendering(row)
+    compare(version.color.toString(), row.versionWarningColor.toString())
   }
 
   function test_repositoryLinkOwnsItsClick() {
@@ -274,14 +354,18 @@ TestCase {
     row.pluginName = "A weather plugin with a deliberately long name"
     row.repository =
       "https://github.com/a-very-long-creator/weather-plugin-repository"
+    row.installedVersion = "123.456.789"
     waitForRendering(row)
     var name = textItem(row.pluginName)
     var repository = textItem(
       "a-very-long-creator/weather-plugin-repository")
+    var installed = namedItem("installedVersionText")
     verify(name.width > 0)
     verify(repository.width > 0)
+    verify(installed.width > 0)
     verify(String(repository.text).indexOf("https://") !== 0)
     verify(name.x + name.width <= repository.x)
-    verify(repository.x + repository.width <= repository.parent.width)
+    verify(repository.x + repository.width <= installed.x)
+    verify(installed.x + installed.width <= installed.parent.width)
   }
 }

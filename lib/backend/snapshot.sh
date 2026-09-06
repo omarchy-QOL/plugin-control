@@ -35,10 +35,12 @@ manifest_record() {
         description:(.description // ""),
         author:(.author // ""),
         version:(.version // ""),
+        installedVersion:(.version // ""),
         kinds:(.kinds // []),
         kind:((.kinds // []) | join(" + ")),
         fullBar:((.kinds // []) | index("bar") != null),
         repository:$repository,
+        installedRepository:$repository,
         source:"local",
         sourceName:"Local checkout",
         sourceRank:50,
@@ -162,17 +164,26 @@ build_snapshot() (
     cache="$CHANNEL_CACHE/$channel_id.json"
     if channel_cache_valid "$cache"; then
       if [[ $channel_id == marketplace ]]; then
-        jq -c '.records[] | .marketplaceListed = true' "$cache" \
+        jq -c '.records[]
+          | .catalogVersion = (.version // "")
+          | .catalogRepository = (.repository // "")
+          | .marketplaceListed = true' "$cache" \
           >>"$records_jsonl"
         marketplace_loaded=true
       else
-        jq -c '.records[]' "$cache" >>"$records_jsonl"
+        jq -c '.records[]
+          | .catalogVersion = (.version // "")
+          | .catalogRepository = (.repository // "")' \
+          "$cache" >>"$records_jsonl"
       fi
     fi
   done < <(jq -c '.channels[] | select(.enabled == true)' <<<"$config")
 
   if [[ $marketplace_loaded != true ]]; then
-    jq -c '.plugins[] | .marketplaceListed = true' \
+    jq -c '.plugins[]
+      | .catalogVersion = (.version // "")
+      | .catalogRepository = (.repository // "")
+      | .marketplaceListed = true' \
       "$root/bootstrap/catalog.json" >>"$records_jsonl"
   fi
   installed_records "$installed_jsonl" "$stage" || {
@@ -190,8 +201,32 @@ build_snapshot() (
   stats_file="$stage/stats.json"
   snapshot_file="$stage/snapshot.json"
   jq -sc '
+    def catalog_presentation:
+      {name, description, author, version, repository, kind,
+        source, sourceName, sourceRank, catalogVersion, catalogRepository}
+      | with_entries(select(.value != null));
+
     group_by(.id)
-    | map(sort_by(.sourceRank // 0) | reduce .[] as $record ({}; . * $record))
+    | map(
+        sort_by(.sourceRank // 0) as $records
+        | (reduce $records[] as $record ({}; . * $record)) as $merged
+        | ([$records[] | select(.source != "local")]
+          | reduce .[] as $record ({}; . * $record)) as $catalog
+        | ([$records[] | select(.source == "local")] | last // null) as $local
+        | if $local == null then $merged
+          elif ($catalog | length) > 0 then
+            $merged
+            | .installedVersion = ($local.installedVersion // $local.version // "")
+            | .installedRepository = ($local.installedRepository
+              // $local.repository // "")
+            | . * ($catalog | catalog_presentation)
+          else
+            $merged
+            | .installedVersion = ($local.installedVersion // $local.version // "")
+            | .installedRepository = ($local.installedRepository
+              // $local.repository // "")
+            | .version = ""
+          end)
     | sort_by((.name // .id | ascii_downcase), .id)
   ' "$records_jsonl" >"$base_merged_file"
   jq -sc '
@@ -252,7 +287,8 @@ build_snapshot() (
     --slurpfile diagnostics "$diagnostics_file" \
     --slurpfile config "$config_file" --slurpfile refresh "$refresh_file" \
     --slurpfile updates "$update_file" \
-    '{ok:true,snapshotId:$snapshotId,generatedAt:$generatedAt,
+    '{ok:true,snapshotSchemaVersion:1,
+      snapshotId:$snapshotId,generatedAt:$generatedAt,
       records:$records[0],diagnostics:$diagnostics[0],config:$config[0],
       cache:{lastSuccessfulRefresh:($refresh[0].lastSuccessfulRefresh // ""),
         refreshWarnings:(($refresh[0].refreshWarnings // [])
@@ -362,6 +398,7 @@ snapshot_is_current() {
   local path="$1"
   [[ -f $path && ! -L $path ]] && jq -e '
     .ok == true
+    and .snapshotSchemaVersion == 1
     and (.snapshotId | type == "string" and length > 0)
     and (.records | type == "array")
     and .config.version == 2

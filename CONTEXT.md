@@ -19,9 +19,28 @@ _Avoid_: Community item, external plugin
 A user plugin that is known to Plugin Control but has not been added locally.
 _Avoid_: Uninstalled plugin, remote plugin
 
+**Marketplace presentation**:
+The name, description, author, repository, version, and listing metadata shown
+for a marketplace-listed plugin.
+_Avoid_: Installed metadata, local presentation
+
+**Marketplace version**:
+The manifest version reported by the current marketplace catalog for a plugin.
+It does not describe an installed checkout or a GitHub release.
+_Avoid_: Latest version, release version
+
 **Added plugin**:
 A user plugin present in the local Omarchy plugin directory.
 _Avoid_: Installed plugin, downloaded plugin
+
+**Installed version**:
+The manifest version read from an added plugin's local checkout.
+_Avoid_: Marketplace version, release version
+
+**Local lifecycle state**:
+The added, enabled, removable, and update state derived from the local plugin
+checkout and native registry.
+_Avoid_: Marketplace state
 
 **Update available**:
 A checked added plugin whose upstream commit is a safe fast-forward from its

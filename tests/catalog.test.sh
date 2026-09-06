@@ -356,7 +356,7 @@ download_catalog() {
   : >"$3"
   printf '304\n'
 }
-printf '%s\n' '{"normalizerVersion":4,"etag":"\"current\""}' \
+printf '%s\n' '{"normalizerVersion":5,"etag":"\"current\""}' \
   >"$CHANNEL_CACHE/marketplace.meta.json"
 refresh_catalog_channel "$ROOT" "$channel"
 [[ $(sha256sum "$CHANNEL_CACHE/marketplace.json") == "$before" ]]
@@ -368,10 +368,10 @@ download_catalog() {
   printf 'ETag: "new"\n' >"$3"
   printf '200\n'
 }
-printf '%s\n' '{"normalizerVersion":3,"etag":"\"stale\""}' \
+printf '%s\n' '{"normalizerVersion":4,"etag":"\"stale\""}' \
   >"$CHANNEL_CACHE/marketplace.meta.json"
 refresh_catalog_channel "$ROOT" "$channel"
-jq -e '.normalizerVersion == 4 and .etag == "\"new\""' \
+jq -e '.normalizerVersion == 5 and .etag == "\"new\""' \
   "$CHANNEL_CACHE/marketplace.meta.json" >/dev/null
 jq -e '.records[0].stars == 42
   and .records[0].versionUpdatedAt == "2026-08-20T09:00:00.000Z"' \
@@ -501,7 +501,7 @@ jq -cn --arg lastSuccessfulRefresh "$previous_refresh" \
   '{lastSuccessfulRefresh:$lastSuccessfulRefresh,
     lastSuccessfulEpoch:$lastSuccessfulEpoch,refreshWarnings:[],
     refreshDurationMs:10}' >"$REFRESH_STATE"
-jq -cn '{normalizerVersion:4,retrievedAt:"2026-08-20T11:59:00Z"}' \
+jq -cn '{normalizerVersion:5,retrievedAt:"2026-08-20T11:59:00Z"}' \
   >"$CHANNEL_CACHE/marketplace.meta.json"
 refresh_channel() {
   return 1

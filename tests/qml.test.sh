@@ -372,15 +372,22 @@ cp "$TEST_DIR/fixtures/qml-entrypoints/shell.qml" \
   "$runtime_root/config/shell.qml"
 ln -s /usr/share/omarchy/shell/Commons "$runtime_root/config/Commons"
 ln -s /usr/share/omarchy/shell/Ui "$runtime_root/config/Ui"
+# Cover development links and URL escaping in the plugin's own file paths.
+runtime_source="$runtime_root/plugin source #1%"
+ln -s "$ROOT" "$runtime_source"
 if ! env QT_QPA_PLATFORM=wayland HOME="$runtime_root/home" \
   XDG_CONFIG_HOME="$runtime_root/config" \
   XDG_CACHE_HOME="$runtime_root/cache" \
   XDG_STATE_HOME="$runtime_root/state" \
-  OMARCHY_PATH=/usr/share/omarchy PLUGIN_CONTROL_SOURCE_DIR="$ROOT" \
+  OMARCHY_PATH=/usr/share/omarchy PLUGIN_CONTROL_SOURCE_DIR="$runtime_source" \
   QML2_IMPORT_PATH=/usr/share/omarchy/shell \
   QML_IMPORT_PATH=/usr/share/omarchy/shell \
   timeout 20 quickshell -p "$runtime_root/config" --no-color \
   >"$runtime_root/quickshell.log" 2>&1; then
+  sed -n '1,240p' "$runtime_root/quickshell.log" >&2
+  exit 1
+fi
+if grep -Fq 'PLUGIN_CONTROL_LOAD_ERROR' "$runtime_root/quickshell.log"; then
   sed -n '1,240p' "$runtime_root/quickshell.log" >&2
   exit 1
 fi
@@ -394,8 +401,4 @@ grep -Fq 'PLUGIN_CONTROL_INTERACTION_OK palette interactions' \
 grep -Fq 'PLUGIN_CONTROL_SIDE_PREVIEW_OK delay selection and close' \
   "$runtime_root/quickshell.log"
 test -f "$runtime_root/config/omarchy/ilyazar.plugin-control/channels.yaml"
-if grep -Fq 'PLUGIN_CONTROL_LOAD_ERROR' "$runtime_root/quickshell.log"; then
-  sed -n '1,240p' "$runtime_root/quickshell.log" >&2
-  exit 1
-fi
 printf 'ok - fresh install watcher and entry points instantiate in Quickshell\n'

@@ -69,13 +69,13 @@ ShellRoot {
         service: "Service.qml",
         overlay: "PluginControl.qml",
         barWidget: "PluginControlBar.qml"
-      },
-      __sourceDir: sourceDir
+      }
     }
   }
 
   function loadEntry(fileName, kind) {
-    var url = encodeURI("file://" + sourceDir + "/" + fileName)
+    var url = "file://" + (sourceDir + "/" + fileName)
+      .split("/").map(encodeURIComponent).join("/")
     var component = Qt.createComponent(url, Component.PreferSynchronous)
     if (component.status !== Component.Ready) {
       console.error("PLUGIN_CONTROL_LOAD_ERROR " + kind + ": "
@@ -176,6 +176,11 @@ ShellRoot {
     repeat: false
     onTriggered: {
       root.serviceObject = root.loadEntry("Service.qml", "service")
+      if (root.serviceObject && (root.serviceObject.sourceDir !== root.sourceDir
+          || root.serviceObject.helperPath !== root.sourceDir + "/bin/plugin-control"
+          || !root.serviceObject.initialLoadStarted)) {
+        console.error("PLUGIN_CONTROL_LOAD_ERROR public manifest backend path")
+      }
       if (root.serviceObject) {
         if (!root.serviceObject.initialLoadStarted) {
           console.error("PLUGIN_CONTROL_LOAD_ERROR late service initialization")
@@ -301,6 +306,10 @@ ShellRoot {
         }
       }
       var overlay = root.loadEntry("PluginControl.qml", "overlay")
+      if (overlay && overlay.sourcePath("scripts/open-settings.sh")
+          !== root.sourceDir + "/scripts/open-settings.sh") {
+        console.error("PLUGIN_CONTROL_LOAD_ERROR public manifest settings path")
+      }
       if (overlay && "service" in overlay) {
         overlay.service = root.serviceObject
         var savedPromptSnapshot = root.serviceObject.snapshot

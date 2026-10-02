@@ -4,6 +4,9 @@ Notable changes are recorded here for each published release.
 
 ## Unreleased
 
+- Restore catalog loading, refresh, and settings on Omarchy 4.0.4 by resolving
+  plugin files without private manifest fields.
+
 - Show a delayed marketplace preview beside the picker, adapted from Metaplug.
 
 - Keep marketplace presentation separate from local plugin lifecycle state.

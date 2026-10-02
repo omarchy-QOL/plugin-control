@@ -56,8 +56,10 @@ Item {
   readonly property string homeDir: Quickshell.env("HOME")
   readonly property string configHome: Quickshell.env("XDG_CONFIG_HOME")
     || homeDir + "/.config"
-  readonly property string sourceDir: manifest && manifest.__sourceDir
-    ? String(manifest.__sourceDir) : ""
+  // Public manifests omit internal paths; resolve assets beside this file.
+  readonly property string sourceDir: decodeURIComponent(
+    Qt.resolvedUrl(".").toString().replace(/^file:\/\//, ""))
+    .replace(/\/$/, "")
   readonly property string helperPath: sourceDir
     ? sourceDir + "/bin/plugin-control" : ""
   readonly property string channelConfigPath: configHome

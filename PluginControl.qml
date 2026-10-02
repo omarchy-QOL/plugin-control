@@ -605,8 +605,9 @@ Item {
   }
 
   function sourceDir() {
-    return manifest && manifest.__sourceDir
-      ? String(manifest.__sourceDir) : ""
+    return decodeURIComponent(
+      Qt.resolvedUrl(".").toString().replace(/^file:\/\//, ""))
+      .replace(/\/$/, "")
   }
 
   function sourcePath(relative) {

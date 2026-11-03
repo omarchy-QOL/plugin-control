@@ -2,3 +2,4 @@ BACKUPS/
 TODO/
 tests/tmp/
 *.log
+.omarchy-plugin-dev/

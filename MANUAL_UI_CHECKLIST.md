@@ -1,17 +1,18 @@
-# Plugin Control 0.2.0 manual UI checklist
+# Plugin Control 0.3.0 manual UI checklist
 
-Run these checks from `feat-plugin-update-ux` before merging or publishing.
-Use at least one light theme and one dark theme. Keep a terminal open for
-`omarchy plugin list --json` and Git-state confirmation.
+Run these checks from a clean, pushed `dev` release candidate before tagging
+or publishing. Use at least one light theme and one dark theme. Keep a terminal
+open for `omarchy plugin list --json` and Git-state confirmation.
 
 ## Setup
 
-- [ ] Confirm `manifest.json` reports version 0.2.0 and Plugin Control is
-  enabled from this checkout.
+- [ ] Confirm `manifest.json` reports version 0.3.0 and Plugin Control is
+  enabled from the exact pushed `dev` commit.
 - [ ] Open and close the palette repeatedly with Ctrl+p and the bar icon;
   confirm focus always starts in search and only one overlay appears.
-- [ ] Confirm the empty search field uses this hint:
-  `Search plugins (or type "plug-..." for direct plugin commands).`
+- [ ] Confirm the empty search field reports the cached plugin count, for
+  example `Search 1865 plugins (or type "plug-..." for direct plugin
+  commands)`.
 - [ ] Confirm `background_dim: false` leaves the workspace undimmed behind the
   palette and dialogs; set it to `true`, save, and confirm dimming appears.
 - [ ] Confirm opening the palette performs no network request or update check.
@@ -115,6 +116,11 @@ Use at least one light theme and one dark theme. Keep a terminal open for
 - [ ] Confirm the information view shows the complete description with no
   result-row ellipsis. Use a long description and scroll the content while the
   Close action remains visible.
+- [ ] Rest on a marketplace plugin for one second and confirm its side preview
+  appears only when the screen has room. Move selection before the delay and
+  confirm the stale preview never appears.
+- [ ] Confirm the side preview hides behind dialogs and settings, returns only
+  after a new delay, and opens the same information view when clicked.
 - [ ] Confirm a marketplace plugin with preview metadata shows its card image
   below the description. Confirm a plugin without a preview leaves no empty
   image panel.
@@ -157,7 +163,9 @@ Use at least one light theme and one dark theme. Keep a terminal open for
 ## Footer, status, and visual quality
 
 - [ ] Confirm footer order is Ctrl+u, Ctrl+i, Ctrl+w, Ctrl+g, Ctrl+r, Ctrl+s and
-  every shortcut works.
+  every keyboard shortcut and left-click cell works.
+- [ ] Confirm right-clicking footer cells is inert and footer clicks do nothing
+  while a modal dialog is open.
 - [ ] Confirm footer text fits at the narrowest supported palette width. Verify
   it shrinks only slightly and remains comfortably readable.
 - [ ] During Ctrl+u, confirm `Checking for updates...` is yellow on the left and
@@ -184,6 +192,12 @@ Use at least one light theme and one dark theme. Keep a terminal open for
   width and remain understandable at minimum width.
 - [ ] Inspect the action dialog, dimmed help, metrics, status row, and footer in
   light and dark themes and at 100%, 125%, and 150% scale.
+- [ ] Confirm compact result rows keep the plugin name, repository link,
+  description, state, source, installed version, and warning readable at normal
+  and minimum widths.
+- [ ] Confirm a marketplace-listed added plugin keeps its marketplace version
+  while showing the local manifest version as a separate green installed
+  label. Confirm local-only plugins do not invent a marketplace version.
 - [ ] Confirm long plugin names, repositories, tags, notices, and translated
   date widths do not clip controls or push the dialog off screen.
 - [ ] Confirm all focus indicators, selected/dimmed contrast, mouse hit targets,
@@ -196,4 +210,4 @@ Use at least one light theme and one dark theme. Keep a terminal open for
 - [ ] Confirm every disposable plugin, bar placement, Git branch, local change,
   theme, scale, network state, and Plugin Control setting is restored.
 - [ ] Run the automated release commands from `COMPLETION_AUDIT.md` again after
-  the visual pass and confirm the branch remains clean.
+  the visual pass and confirm `dev` remains clean and matches its pushed SHA.

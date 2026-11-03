@@ -213,7 +213,7 @@ defaults for a recoverable first-run error.
 
 ## Dependencies
 
-- Omarchy Quattro and its shell
+- Omarchy Quattro 4.0.5 or newer and its shell
 - Bash, curl, Git, and jq
 - Ruby with Psych
 - util-linux (`flock` and `setsid`)

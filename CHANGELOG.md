@@ -2,13 +2,17 @@
 
 Notable changes are recorded here for each published release.
 
-## Unreleased
+## [0.3.0] - Unreleased
 
 - Show a delayed marketplace preview beside the picker, adapted from Metaplug.
-
+- Make the six footer controls and visible dialog actions clickable with exact,
+  tested pointer targets.
+- Use compact three-line result rows with direct repository links and clearer
+  action, source, and warning labels.
 - Keep marketplace presentation separate from local plugin lifecycle state.
 - Show installed manifest versions independently and explain unverified
   marketplace versions without using GitHub release tags as replacements.
+- Support larger marketplace catalogs without truncating valid downloads.
 
 ## [0.2.1] - 2026-08-22
 
@@ -61,6 +65,7 @@ Notable changes are recorded here for each published release.
 
 - Publish the first Plugin Control palette with plugin add and remove flows.
 
+[0.3.0]: https://github.com/omarchy-QOL/plugin-control/compare/v0.2.1...v0.3.0
 [0.2.1]: https://github.com/omarchy-QOL/plugin-control/compare/v0.1.7...v0.2.1
 [0.1.7]: https://github.com/omarchy-QOL/plugin-control/compare/v0.1.6...v0.1.7
 [0.1.6]: https://github.com/omarchy-QOL/plugin-control/compare/v0.1.5...v0.1.6

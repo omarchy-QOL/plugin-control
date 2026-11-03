@@ -259,6 +259,14 @@ shellcheck bin/plugin-control scripts/*.sh tests/*.sh
 omarchy plugin validate .
 ```
 
+## Contributors
+
+[Harshjeet](https://github.com/Harshjeet) explored result thumbnails, local
+plugin previews, terminal lifecycle actions, and plugin cleanup in
+[PR #72](https://github.com/omarchy-QOL/plugin-control/pull/72). The proposal
+helped clarify Plugin Control's preview trust boundary and safe removal
+contract.
+
 ## Official Marketplace design
 
 Kudos where Kudos is due: the detail view follows the icon language, activity

@@ -2,7 +2,7 @@
 
 Notable changes are recorded here for each published release.
 
-## [0.3.0] - Unreleased
+## [0.3.0] - 2026-11-08
 
 - Show a delayed marketplace preview beside the picker, adapted from Metaplug.
 - Make the six footer controls and visible dialog actions clickable with exact,

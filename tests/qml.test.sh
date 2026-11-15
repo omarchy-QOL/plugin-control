@@ -22,7 +22,7 @@ printf 'ok - QML lint\n'
 rg -q 'function open\(payloadJson\)' "$ROOT/PluginControl.qml"
 rg -q 'function close\(\)' "$ROOT/PluginControl.qml"
 rg -q 'function toggle\(\)' "$ROOT/PluginControl.qml"
-rg -q 'TextInput \{' "$ROOT/PluginControl.qml"
+rg -q 'TextEdit \{' "$ROOT/PluginControl.qml"
 rg -q 'Qt.Key_P' "$ROOT/PluginControl.qml"
 rg -Fq 'event.key === Qt.Key_Escape' "$ROOT/PluginControl.qml"
 for footer_label in \

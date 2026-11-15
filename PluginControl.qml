@@ -19,7 +19,13 @@ Item {
 
   property bool opened: false
   property bool surfaceVisible: false
-  property alias query: queryInput.text
+  property string query: ""
+  onQueryChanged: {
+    if (queryInput.text === query) return
+    queryInput.text = query
+    // TextEdit drops the cursor to 0 on assignment
+    queryInput.cursorPosition = query.length
+  }
   property string mode: "browse"
   property int selectedIndex: 0
   property var filteredRecords: []
@@ -691,7 +697,7 @@ Item {
       queryInput.cursorPosition = queryInput.text.length
       if (service) service.requestUpdateCheck()
     } else if (isControlShortcut(event, Qt.Key_Backspace)) {
-      queryInput.text = deletePreviousWord(queryInput.text)
+      query = deletePreviousWord(query)
     } else if (event.modifiers === Qt.NoModifier
         && event.key === Qt.Key_Backspace) {
       return clearCompletedCommandPrefix()
@@ -930,7 +936,9 @@ Item {
             font.pixelSize: Style.font.iconLarge
           }
 
-          TextInput {
+          // TextEdit, not TextInput: TextInput reads the whole clipboard
+          // on every clipboard change, with no size limit
+          TextEdit {
             id: queryInput
             anchors.left: searchIcon.right
             anchors.leftMargin: Style.spacing.sm
@@ -947,18 +955,29 @@ Item {
             selectByMouse: true
             activeFocusOnTab: true
             onTextChanged: {
+              root.query = text
               root.selectedIndex = 0
               root.transientMessage = ""
               root.rebuildResults()
             }
             Keys.priority: Keys.BeforeItem
             Keys.onPressed: function(event) {
-              if (root.handleKey(event)) event.accepted = true
+              // no paste (unbounded clipboard read), keep it single-line
+              if (root.handleKey(event) || event.matches(StandardKey.Paste)
+                  || event.key === Qt.Key_Return || event.key === Qt.Key_Enter
+                  || event.key === Qt.Key_Tab)
+                event.accepted = true
             }
 
             TapHandler {
               acceptedButtons: Qt.LeftButton
               onTapped: root.spaceActivatesSelection = false
+            }
+
+            // swallow middle-click primary-selection paste
+            MouseArea {
+              anchors.fill: parent
+              acceptedButtons: Qt.MiddleButton
             }
 
             Text {

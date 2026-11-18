@@ -1,4 +1,4 @@
-# Plugin Control 0.3.1 manual UI checklist
+# Plugin Control 0.3.2 manual UI checklist
 
 Run these checks from a clean, pushed `dev` release candidate before tagging
 or publishing. Use at least one light theme and one dark theme. Keep a terminal
@@ -6,8 +6,11 @@ open for `omarchy plugin list --json` and Git-state confirmation.
 
 ## Setup
 
-- [ ] Confirm `manifest.json` reports version 0.3.1 and Plugin Control is
+- [ ] Confirm `manifest.json` reports version 0.3.2 and Plugin Control is
   enabled from the exact pushed `dev` commit.
+- [ ] On Omarchy 4.5, confirm the bar icon is slightly larger than the icons
+  beside it, sits on their centre line, and has clean grey edges without
+  colour fringes.
 - [ ] Open and close the palette repeatedly with Ctrl+p and the bar icon;
   confirm focus always starts in search and only one overlay appears.
 - [ ] Confirm the empty search field reports the cached plugin count, for

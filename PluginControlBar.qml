@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Window
 import qs.Commons
 import qs.Ui
 
@@ -43,8 +44,7 @@ BarWidget {
   // outline is 1.16 times as tall as the round and square glyphs beside it,
   // so the fit shrinks it against them and its inner lines close up.
   readonly property real iconScale: 1.16
-  readonly property real iconPaintedSize:
-    Math.max(glyph.ink.width, glyph.ink.height) * glyph.fit
+  readonly property real iconPaintedSize: iconBox.longest * iconBox.fit
 
   // WidgetButton, not BarIconButton: the host's fit cannot be widened, so
   // the glyph is measured and sized here to keep its own proportion.
@@ -65,29 +65,62 @@ BarWidget {
       text: glyph.text
     }
 
-    Text {
-      id: glyph
-      readonly property rect ink: Qt.rect(
-        inkMetrics.tightBoundingRect.x / 100,
-        inkMetrics.tightBoundingRect.y / 100,
-        inkMetrics.tightBoundingRect.width / 100,
-        inkMetrics.tightBoundingRect.height / 100)
+    Item {
+      id: iconBox
+      // An edge drawn between device pixels smears over two of them, so the
+      // outline is sized and placed on whole pixels. Qt's Screen ratio is
+      // integral; the window carries the fractional one.
+      readonly property real dpr: Window.window
+        ? Window.window.devicePixelRatio : 1
+      readonly property real longest:
+        Math.max(1, glyph.ink.width, glyph.ink.height)
       // hosts before 4.5 have no icon size and draw the font's own size
       readonly property real fit: Style.bar.iconSize > 0
-        ? Style.bar.iconSize * root.iconScale
-          / Math.max(1, ink.width, ink.height) : 1
-      textFormat: Text.PlainText
-      text: "󰏖"
-      color: button.active && button.useActiveColor
-        ? button.activeColor : button.foreground
-      font.family: button.fontFamily
-      font.pixelSize: Style.bar.iconFont
-      renderType: Text.QtRendering
-      transformOrigin: Item.TopLeft
-      scale: fit * (button.pressScale > 0 ? button.pressScale : 1)
-      x: button.width / 2 - (ink.x + ink.width / 2) * scale
-      y: button.height / 2
-        - (baselineOffset + ink.y + ink.height / 2) * scale
+        ? Math.round(Style.bar.iconSize * root.iconScale * dpr) / dpr / longest
+        : 1
+      property real snapX: 0
+      property real snapY: 0
+
+      function align() {
+        var p = button.mapToItem(null, (button.width - width) / 2,
+          (button.height - height) / 2)
+        snapX = Math.round(p.x * dpr) / dpr - p.x
+        snapY = Math.round(p.y * dpr) / dpr - p.y
+      }
+
+      width: glyph.ink.width * fit
+      height: glyph.ink.height * fit
+      x: (button.width - width) / 2 + snapX
+      y: (button.height - height) / 2 + snapY
+      scale: button.pressScale > 0 ? button.pressScale : 1
+
+      // The bar moves widgets as neighbours resize; re-snap before each frame.
+      Connections {
+        target: iconBox.Window.window
+        function onAfterAnimating() { iconBox.align() }
+      }
+
+      Text {
+        id: glyph
+        readonly property rect ink: Qt.rect(
+          inkMetrics.tightBoundingRect.x / 100,
+          inkMetrics.tightBoundingRect.y / 100,
+          inkMetrics.tightBoundingRect.width / 100,
+          inkMetrics.tightBoundingRect.height / 100)
+        textFormat: Text.PlainText
+        text: "󰏖"
+        color: button.active && button.useActiveColor
+          ? button.activeColor : button.foreground
+        font.family: button.fontFamily
+        font.pixelSize: Style.bar.iconFont
+        // Curves, not the default distance field: that one antialiases per
+        // colour channel, which fringes this glyph's many thin edges.
+        renderType: Text.CurveRendering
+        transformOrigin: Item.TopLeft
+        scale: iconBox.fit
+        x: -ink.x * scale
+        y: -(baselineOffset + ink.y) * scale
+      }
     }
 
     tooltipText: "Plugin Control"

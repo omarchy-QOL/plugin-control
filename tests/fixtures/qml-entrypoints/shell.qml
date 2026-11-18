@@ -1037,8 +1037,9 @@ ShellRoot {
         root.serviceObject.acknowledgeAction()
         if (barWidget.actionFailed)
           console.error("PLUGIN_CONTROL_LOAD_ERROR bar failure dismissal")
-        // the host's default 12px icon box times the glyph's own proportion
-        if (Math.abs(barWidget.iconPaintedSize - 12 * 1.16) > 0.05) {
+        // the host's default 12px icon box times the glyph's own proportion,
+        // rounded to whole device pixels
+        if (Math.abs(barWidget.iconPaintedSize - 12 * 1.16) > 0.5) {
           console.error("PLUGIN_CONTROL_LOAD_ERROR bar icon size "
             + barWidget.iconPaintedSize)
         }

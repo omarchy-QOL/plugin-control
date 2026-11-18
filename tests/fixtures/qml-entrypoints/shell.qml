@@ -37,6 +37,15 @@ ShellRoot {
         interval = 1100
         root.sidePreviewStep++
         restart()
+      } else if (root.sidePreviewStep === 2) {
+        // the stub wl-paste never stops writing, so this only passes when
+        // the helper caps the read and keeps the first line
+        if (overlay.query !== "pasted text")
+          console.error("PLUGIN_CONTROL_LOAD_ERROR bounded paste "
+            + JSON.stringify(overlay.query))
+        overlay.close()
+        console.log("PLUGIN_CONTROL_PASTE_OK capped single-line paste")
+        Qt.callLater(Qt.quit)
       } else {
         if (overlay.roomForSidePreview
             && (!overlay.sidePreviewRecord
@@ -53,7 +62,12 @@ ShellRoot {
         if (overlay.sidePreviewCandidate !== null)
           console.error("PLUGIN_CONTROL_LOAD_ERROR preview after close")
         console.log("PLUGIN_CONTROL_SIDE_PREVIEW_OK delay selection and close")
-        Qt.callLater(Qt.quit)
+        overlay.opened = true
+        overlay.query = ""
+        overlay.requestPaste(false)
+        interval = 600
+        root.sidePreviewStep++
+        restart()
       }
     }
   }

@@ -95,6 +95,7 @@ yellow warning. A failed scan is red.
 | `Enter`                              | Complete or confirm                |
 | `Tab`                                | Complete the selected command      |
 | `Ctrl+Backspace`                     | Remove the previous word           |
+| `Ctrl+v` or middle-click             | Paste one line into the search     |
 | `Ctrl+u`                             | Check for updateable plugins       |
 | `Ctrl+r`                             | Refresh catalog and metrics        |
 | `Ctrl+i`                             | Show read-only plugin details      |

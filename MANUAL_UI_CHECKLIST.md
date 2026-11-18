@@ -13,6 +13,13 @@ open for `omarchy plugin list --json` and Git-state confirmation.
 - [ ] Confirm the empty search field reports the cached plugin count, for
   example `Search 1865 plugins (or type "plug-..." for direct plugin
   commands)`.
+- [ ] Copy a short line of text, press Ctrl+v in the search field, and confirm
+  it is inserted at the cursor; repeat with Shift+Insert and with a selected
+  word and a middle-click.
+- [ ] Copy several lines of text and paste; confirm only the first line arrives.
+- [ ] Type or paste more text than the search field can show and confirm the
+  cursor stays visible at the right edge; press Home and End and confirm the
+  text follows the cursor.
 - [ ] Confirm `background_dim: false` leaves the workspace undimmed behind the
   palette and dialogs; set it to `true`, save, and confirm dimming appears.
 - [ ] Confirm opening the palette performs no network request or update check.

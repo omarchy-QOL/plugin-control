@@ -367,12 +367,16 @@ fi
 
 runtime_root="$(mktemp -d /tmp/plugin-control-qml-load.XXXXXX)"
 trap 'rm -rf -- "$runtime_root"' EXIT
-mkdir -p "$runtime_root/config" "$runtime_root/home"
+mkdir -p "$runtime_root/config" "$runtime_root/home" "$runtime_root/bin"
+printf '#!/bin/sh\nprintf "pasted text\\nsecond line"\nexec yes\n' \
+  >"$runtime_root/bin/wl-paste"
+chmod +x "$runtime_root/bin/wl-paste"
 cp "$TEST_DIR/fixtures/qml-entrypoints/shell.qml" \
   "$runtime_root/config/shell.qml"
 ln -s /usr/share/omarchy/shell/Commons "$runtime_root/config/Commons"
 ln -s /usr/share/omarchy/shell/Ui "$runtime_root/config/Ui"
 if ! env QT_QPA_PLATFORM=wayland HOME="$runtime_root/home" \
+  PATH="$runtime_root/bin:$PATH" \
   XDG_CONFIG_HOME="$runtime_root/config" \
   XDG_CACHE_HOME="$runtime_root/cache" \
   XDG_STATE_HOME="$runtime_root/state" \
@@ -392,6 +396,8 @@ grep -Fq 'PLUGIN_CONTROL_WATCH_OK fresh install save' \
 grep -Fq 'PLUGIN_CONTROL_INTERACTION_OK palette interactions' \
   "$runtime_root/quickshell.log"
 grep -Fq 'PLUGIN_CONTROL_SIDE_PREVIEW_OK delay selection and close' \
+  "$runtime_root/quickshell.log"
+grep -Fq 'PLUGIN_CONTROL_PASTE_OK capped single-line paste' \
   "$runtime_root/quickshell.log"
 test -f "$runtime_root/config/omarchy/ilyazar.plugin-control/channels.yaml"
 if grep -Fq 'PLUGIN_CONTROL_LOAD_ERROR' "$runtime_root/quickshell.log"; then

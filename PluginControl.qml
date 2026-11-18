@@ -728,6 +728,35 @@ Item {
     return true
   }
 
+  // Qt's own paste reads the clipboard without a size or time limit inside
+  // the shell process, so the text comes through a capped helper instead
+  function requestPaste(primary) {
+    if (pasteProcess.running || queryInput.readOnly) return
+    pasteProcess.command = ["timeout", "--signal=KILL", "2", "sh", "-c",
+      "wl-paste --no-newline --type text \"$@\" 2>/dev/null | head -c 2048",
+      "sh"].concat(primary ? ["--primary"] : [])
+    pasteProcess.running = true
+  }
+
+  function insertPasted(value) {
+    // a search box wants one short printable line
+    var text = Array.from(String(value || "").split(/[\r\n]/)[0]
+      .replace(/[\x00-\x1f\x7f]/g, " ")).slice(0, 256).join("")
+    if (!text || !opened || queryInput.readOnly) return
+    var start = queryInput.selectionStart
+    queryInput.remove(start, queryInput.selectionEnd)
+    queryInput.insert(start, text)
+    queryInput.cursorPosition = start + text.length
+  }
+
+  Process {
+    id: pasteProcess
+    stdout: StdioCollector {
+      waitForEnd: true
+      onStreamFinished: root.insertPasted(text)
+    }
+  }
+
   ListModel { id: displayModel }
 
   FileView {
@@ -937,7 +966,8 @@ Item {
           }
 
           // TextEdit, not TextInput: TextInput reads the whole clipboard
-          // on every clipboard change, with no size limit
+          // on every clipboard change, with no size limit. Paste goes
+          // through root.requestPaste() for the same reason
           TextEdit {
             id: queryInput
             anchors.left: searchIcon.right
@@ -960,13 +990,24 @@ Item {
               root.transientMessage = ""
               root.rebuildResults()
             }
+            // TextEdit does not scroll sideways on its own: shift the
+            // text so the cursor stays inside the clipped field
+            onCursorRectangleChanged: {
+              var x = cursorRectangle.x - leftPadding
+              leftPadding = Math.min(0, width - x - cursorRectangle.width)
+            }
             Keys.priority: Keys.BeforeItem
             Keys.onPressed: function(event) {
-              // no paste (unbounded clipboard read), keep it single-line
-              if (root.handleKey(event) || event.matches(StandardKey.Paste)
-                  || event.key === Qt.Key_Return || event.key === Qt.Key_Enter
-                  || event.key === Qt.Key_Tab)
+              if (root.handleKey(event)) {
                 event.accepted = true
+              } else if (event.matches(StandardKey.Paste)) {
+                root.requestPaste(false)
+                event.accepted = true
+              } else if (event.key === Qt.Key_Return
+                  || event.key === Qt.Key_Enter || event.key === Qt.Key_Tab) {
+                // keep it single-line
+                event.accepted = true
+              }
             }
 
             TapHandler {
@@ -974,10 +1015,11 @@ Item {
               onTapped: root.spaceActivatesSelection = false
             }
 
-            // swallow middle-click primary-selection paste
+            // takes middle-click away from TextEdit's own selection paste
             MouseArea {
               anchors.fill: parent
               acceptedButtons: Qt.MiddleButton
+              onClicked: root.requestPaste(true)
             }
 
             Text {

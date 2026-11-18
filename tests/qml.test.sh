@@ -134,7 +134,7 @@ if rg -q 'horizontalAlignment: Text.AlignHCenter' "$ROOT/PluginControl.qml"; the
 fi
 printf 'ok - overlay lifecycle input shortcuts and left-aligned rows\n'
 
-rg -Fq 'BarIconButton {' "$ROOT/PluginControlBar.qml"
+rg -Fq 'WidgetButton {' "$ROOT/PluginControlBar.qml"
 rg -Fq 'text: "󰏖"' "$ROOT/PluginControlBar.qml"
 rg -Fq 'Qt.LeftButton' "$ROOT/PluginControlBar.qml"
 rg -Fq 'root.bar.shell.toggle' "$ROOT/PluginControlBar.qml"

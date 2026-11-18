@@ -1037,6 +1037,11 @@ ShellRoot {
         root.serviceObject.acknowledgeAction()
         if (barWidget.actionFailed)
           console.error("PLUGIN_CONTROL_LOAD_ERROR bar failure dismissal")
+        // the host's default 12px icon box times the glyph's own proportion
+        if (Math.abs(barWidget.iconPaintedSize - 12 * 1.16) > 0.05) {
+          console.error("PLUGIN_CONTROL_LOAD_ERROR bar icon size "
+            + barWidget.iconPaintedSize)
+        }
         barWidget.settings = { trayIconHidden: true }
         if (barWidget.visible || barWidget.implicitWidth !== 0
             || barWidget.implicitHeight !== 0)

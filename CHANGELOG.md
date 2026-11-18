@@ -2,6 +2,12 @@
 
 Notable changes are recorded here for each published release.
 
+## Unreleased
+
+- Draw the bar icon about a sixth larger on Omarchy 4.5. That release fits
+  every bar glyph to one box size, which shrank the Plugin Control box against
+  the icons beside it; it now keeps the proportion it had before.
+
 ## [0.3.1] - 2026-11-18
 
 - Stop the search field from reading the clipboard on its own. A clipboard

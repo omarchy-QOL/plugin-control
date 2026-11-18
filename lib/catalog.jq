@@ -250,7 +250,7 @@ elif .stateSchemaVersion != 2 then
   {ok: false, error: "unsupported catalog state schema version", records: [], errors: []}
 elif (.plugins | type) != "array" then
   {ok: false, error: "catalog plugins must be an array", records: [], errors: []}
-elif (.plugins | length) > 5000 then
+elif (.plugins | length) > 25000 then
   {ok: false, error: "catalog has too many records", records: [], errors: []}
 else
   .plugins as $plugins

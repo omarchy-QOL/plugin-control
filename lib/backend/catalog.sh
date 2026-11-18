@@ -114,9 +114,11 @@ download_catalog() {
   local etag="${4:-}"
   local modified="${5:-}"
   local -a request=(
-    curl --silent --show-error --location
+    curl --silent --show-error --location --compressed
     --proto '=https' --proto-redir '=https'
-    --connect-timeout 5 --max-time 20 --max-filesize 16777216
+    # the catalog was 17 MiB in November 2026 and keeps growing; the limit
+    # counts decoded bytes, so compression only shortens the transfer
+    --connect-timeout 5 --max-time 20 --max-filesize 67108864
     --output "$body" --dump-header "$headers"
     --write-out '%{http_code}'
   )

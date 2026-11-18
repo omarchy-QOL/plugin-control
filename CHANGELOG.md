@@ -2,6 +2,13 @@
 
 Notable changes are recorded here for each published release.
 
+## Unreleased
+
+- Accept marketplace catalogs up to 64 MiB and 25,000 plugins, compressed in
+  transit. The catalog outgrew the previous 16 MiB and 5,000-plugin limits,
+  which left fresh installs with local plugins only and no marketplace details
+  or previews.
+
 ## [0.3.2] - 2026-11-18
 
 - Draw the bar icon about a sixth larger on Omarchy 4.5. That release fits

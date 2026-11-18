@@ -191,7 +191,7 @@ done
 printf 'ok - inconsistent schema 2 verification states are rejected\n'
 
 jq -n '{stateSchemaVersion:2,plugins:
-  [range(0;5001)|{id:("x."+tostring),name:"x",sourceType:"community"}]}' \
+  [range(0;25001)|{id:("x."+tostring),name:"x",sourceType:"community"}]}' \
   >"$TEMP_ROOT/oversized-count.json"
 normalize "$TEMP_ROOT/oversized-count.json" \
   | jq -e '.ok == false and (.error | contains("too many"))' >/dev/null

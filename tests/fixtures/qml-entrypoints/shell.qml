@@ -102,6 +102,12 @@ ShellRoot {
         + component.errorString())
       return null
     }
+    // Never map the plugin's windows: on a live session they would cover
+    // the desktop and take the keyboard for the length of the run.
+    var owned = object.resources || []
+    for (var i = 0; i < owned.length; i++) {
+      if (owned[i] && "exclusionMode" in owned[i]) owned[i].visible = false
+    }
     if ("manifest" in object) object.manifest = manifestData()
     if ("shell" in object) object.shell = mockShell
     if ("pluginRegistry" in object) object.pluginRegistry = mockPluginRegistry

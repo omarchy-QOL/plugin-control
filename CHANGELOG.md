@@ -2,6 +2,15 @@
 
 Notable changes are recorded here for each published release.
 
+## [0.3.1] - 2026-11-18
+
+- Stop the search field from reading the clipboard on its own. A clipboard
+  owner could previously stall or bloat the shared shell with an oversized or
+  never-ending text offer.
+- Paste with Ctrl+v, Shift+Insert, or middle-click through a helper limited in
+  size and time; it inserts one line of at most 256 characters.
+- Keep the cursor visible when the query is longer than the search field.
+
 ## [0.3.0] - 2026-11-08
 
 - Show a delayed marketplace preview beside the picker, adapted from Metaplug.
@@ -65,6 +74,7 @@ Notable changes are recorded here for each published release.
 
 - Publish the first Plugin Control palette with plugin add and remove flows.
 
+[0.3.1]: https://github.com/omarchy-QOL/plugin-control/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/omarchy-QOL/plugin-control/compare/v0.2.1...v0.3.0
 [0.2.1]: https://github.com/omarchy-QOL/plugin-control/compare/v0.1.7...v0.2.1
 [0.1.7]: https://github.com/omarchy-QOL/plugin-control/compare/v0.1.6...v0.1.7
